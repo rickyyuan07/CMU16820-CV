@@ -1,6 +1,7 @@
 # ##################################################################### #
 # 16820: Computer Vision Homework 5
 # Carnegie Mellon University
+# 
 # Nov, 2023
 # ##################################################################### #
 
@@ -11,11 +12,9 @@ from q1 import (
     estimateAlbedosNormals,
     displayAlbedosNormals,
     estimateShape,
-    plotSurface,
 )
 from q1 import estimateShape
 from utils import enforceIntegrability, plotSurface
-
 
 def estimatePseudonormalsUncalibrated(I):
     """
