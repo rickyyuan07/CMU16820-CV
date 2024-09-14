@@ -2,13 +2,31 @@ import numpy as np
 import cv2
 
 
-def computeH(x1, x2):
+def computeH(points1: np.array, points2: np.array) -> np.array:
+    '''
     #Q2.2.1
     # TODO: Compute the homography between two sets of points
+    Input:
+        points1: numpy array [N, 2], N is the number of correspondences, [x1, y1]
+        points2: numpy array [N, 2], N is the number of correspondences, [x2, y2]
+    Return:
+        H2to1: numpy array [3, 3], homography matrix, H @ [x2, y2, 1]^T = [x1, y1, 1]^T
+    '''
+    assert points1.shape == points2.shape, "The number of points should be the same"
+    n_points = points1.shape[0]
+    A = np.zeros((2*n_points, 9), dtype=np.float64)
 
+    for i in range(n_points):
+        x1, y1 = points1[i]
+        x2, y2 = points2[i]
+        A[2*i] = [-x2, -y2, -1, 0, 0, 0, x1*x2, x1*y2, x1]
+        A[2*i+1] = [0, 0, 0, -x2, -y2, -1, y1*x2, y1*y2, y1]
 
+    U, S, V = np.linalg.svd(A)
+    H2to1 = V[-1].reshape(3, 3)
 
-
+    # Note that the homography matrix is not normalized
+    # H = H / H[-1, -1] # normalize
     return H2to1
 
 
