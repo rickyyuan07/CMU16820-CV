@@ -70,8 +70,6 @@ def computeH_norm(points1: np.array, points2: np.array) -> np.array:
     -----
         H2to1: numpy array [3, 3], normalized homography matrix, H @ [x2, y2, 1]^T = [x1, y1, 1]^T
     '''
-    assert points1.shape == points2.shape, "The number of points should be the same"
-
     T1, points1_norm = normalize(points1)
     T2, points2_norm = normalize(points2)
 
