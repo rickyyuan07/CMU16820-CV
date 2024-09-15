@@ -24,8 +24,6 @@ def rotTest(opts):
         matches, locs1, locs2 = matchPics(image, rotated_image, opts)
 
         # Update histogram
-        # (Assuming you have a histogram variable to update)
-        # histogram[i] = len(matches)
         match_counts[angle//10] = len(matches)
 
     # Display histogram
