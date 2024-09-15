@@ -31,7 +31,6 @@ def computeH(points1: np.array, points2: np.array) -> np.array:
     H2to1 = V[-1].reshape(3, 3)
 
     H2to1 /= H2to1[2, 2]
-
     return H2to1
 
 
