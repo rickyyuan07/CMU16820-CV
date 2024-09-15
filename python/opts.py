@@ -25,6 +25,18 @@ def get_opts():
                         help='the tolerance value for considering a point to be an inlier')
 
     ## Additional options (add your own hyperparameters here)
+    parser.add_argument('--crop_video', action='store_true', default=False,
+                        help='whether to generate cropped video')
+    parser.add_argument('--ar_src_vid_path', type=str, default='../data/ar_source.mov',
+                        help='path to the source video')
+    parser.add_argument('--ar_tgt_vid_path', type=str, default='../data/book.mov',
+                        help='path to the target video')
+    parser.add_argument('--ar_img_path', type=str, default='../data/cv_cover.jpg',
+                        help='path to the reference image')
+    parser.add_argument('--ar_out_dir', type=str, default='../result/',
+                        help='dir to the output video and frames')
+    parser.add_argument('--ar_out_vid', type=str, default='ar.avi',
+                        help='output video name')
 
     ##
     opts = parser.parse_args()
