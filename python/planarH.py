@@ -87,7 +87,7 @@ def computeH_norm(points1: np.array, points2: np.array) -> np.array:
 def computeH_ransac(locs1: np.array, locs2: np.array, opts: argparse.Namespace) -> Tuple[np.array, np.array]:
     '''
     Q2.2.3
-    Compute the best fitting homography given a list of matching points
+    Compute the best fitting homography mapping points from locs2 to locs1 using RANSAC.
 
     Input
     -----
@@ -121,7 +121,7 @@ def computeH_ransac(locs1: np.array, locs2: np.array, opts: argparse.Namespace) 
         errors = np.linalg.norm(mapped_points[:, :2] - locs1, axis=1)
 
         # Count inliers (where error is less than inlier tolerance)
-        inliers = errors < inlier_tol
+        inliers = (errors < inlier_tol).astype(np.int)
         num_inliers = np.sum(inliers)
 
         # Update best H
@@ -129,31 +129,28 @@ def computeH_ransac(locs1: np.array, locs2: np.array, opts: argparse.Namespace) 
             max_inliers = num_inliers
             bestH2to1 = H2to1
             best_inliers = inliers
-    
-    # Bool to int
-    best_inliers = best_inliers.astype(np.int)
 
     return bestH2to1, best_inliers
 
 
 
 def compositeH(H2to1, template, img):
+    '''
+    Create a composite image after warping the template image on top
+    of the image using the homography
+    '''
     
-    #Create a composite image after warping the template image on top
-    #of the image using the homography
+    # Create mask of same size as template
+    mask = np.ones_like(template, dtype=np.uint8)
 
-    #Note that the homography we compute is from the image to the template;
-    #x_template = H2to1*x_photo
-    #For warping the template to the image, we need to invert it.
+    # Warp mask by appropriate homography
+    warped_mask = cv2.warpPerspective(mask, H2to1, (img.shape[1], img.shape[0]))
     
+    # Warp template by appropriate homography
+    warped_template = cv2.warpPerspective(template, H2to1, (img.shape[1], img.shape[0]))
 
-    # TODO: Create mask of same size as template
-
-    # TODO: Warp mask by appropriate homography
-
-    # TODO: Warp template by appropriate homography
-
-    # TODO: Use mask to combine the warped template and the image
+    # Use mask to combine the warped template and the image
+    composite_img = np.where(warped_mask > 0, warped_template, img)
     
     return composite_img
 
