@@ -27,6 +27,8 @@ def get_opts():
     ## Additional options (add your own hyperparameters here)
     parser.add_argument('--crop_video', action='store_true', default=False,
                         help='whether to generate cropped video')
+    parser.add_argument('--ar_crop_vid_path', type=str, default='../data/cropped_ar_source.avi',
+                        help='save path to the cropped source video')
     parser.add_argument('--ar_src_vid_path', type=str, default='../data/ar_source.mov',
                         help='path to the source video')
     parser.add_argument('--ar_tgt_vid_path', type=str, default='../data/book.mov',

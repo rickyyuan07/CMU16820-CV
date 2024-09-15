@@ -7,7 +7,7 @@ from opts import get_opts
 
 from helper import loadVid
 
-def crop_save_video(ar_src_vid_path: str, ar_img_path: str) -> None:
+def crop_save_video(ar_src_vid_path: str, ar_img_path: str, ar_crop_vid_path: str) -> None:
     '''
     Function to crop the video to the center of each frame.add()
     The cropped video's ratio will be the same as the reference image. (cv_cover.jpg)
@@ -38,17 +38,21 @@ def crop_save_video(ar_src_vid_path: str, ar_img_path: str) -> None:
     # Save the cropped video
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     fps = 30 # ar_source.mov panda video has 30 fps
-    out = cv2.VideoWriter('../data/cropped_ar_source.mov', fourcc, fps, (new_width, new_height))
+    out = cv2.VideoWriter(ar_crop_vid_path, fourcc, fps, (new_width, new_height))
 
     for frame in tqdm(cropped_video):
         out.write(frame)
 
-    print(f"Video saved successfully at '../data/cropped_ar_source.mov'")
+    print(f"Video saved successfully at {ar_crop_vid_path}.")
     out.release()
 
 
 if __name__ == "__main__":
     opts = get_opts()
 
+    # Only first run should crop and save the video
     if opts.crop_video:
-        crop_save_video(opts.ar_src_vid_path, opts.ar_img_path)
+        crop_save_video(opts.ar_src_vid_path, opts.ar_img_path, opts.ar_crop_vid_path)
+
+    # Load the cropped video
+    
