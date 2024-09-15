@@ -22,8 +22,8 @@ def matchPics(I1, I2, opts):
     locs1, locs2: Pixel coordinates of matches [N x 2]
     """
 
-    ratio = opts.ratio  # 'ratio for BRIEF feature descriptor'
-    sigma = opts.sigma  # 'threshold for corner detection using FAST feature detector'
+    ratio = opts.ratio  # ratio for BRIEF feature descriptor
+    sigma = opts.sigma  # threshold for corner detection using FAST feature detector
 
     # Convert images to grayscale
     I1_gray = skimage.color.rgb2gray(I1)
