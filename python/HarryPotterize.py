@@ -4,7 +4,7 @@ import skimage.io
 import skimage.color
 from opts import get_opts
 from planarH import computeH_ransac, compositeH
-from matchPics import matchPics
+from matchPics import matchPics, matchPicsORB, matchPicsSIFT
 from displayMatch import displayMatched
 
 # Import necessary functions
@@ -20,12 +20,18 @@ def warpImage(opts, template_img, from_img, to_img):
     # Resize from_img such that the warpped image fit the correct size as cv_cover
     from_img = cv2.resize(from_img, (template_img.shape[1], template_img.shape[0]))
 
-    matches, locs1, locs2 = matchPics(to_img, template_img, opts)
+    if opts.match_method == 'BRIEF_FAST':
+        matches, locs1, locs2 = matchPics(to_img, template_img, opts)
+        # Important! Swap x, y axis because cv2.warpPerspective treats x, y differently
+        locs1 = locs1[:, ::-1]
+        locs2 = locs2[:, ::-1]
+    elif opts.match_method == 'ORB':
+        matches, locs1, locs2 = matchPicsORB(to_img, template_img, opts)
+    elif opts.match_method == 'SIFT':
+        matches, locs1, locs2 = matchPicsSIFT(to_img, template_img, opts)
+    
     locs1 = locs1[matches[:, 0]]
     locs2 = locs2[matches[:, 1]]
-    # Important! Swap x, y axis because cv2.warpPerspective treats x, y differently
-    locs1 = locs1[:, ::-1]
-    locs2 = locs2[:, ::-1]
     
     # Homography maps locs2 (template_img) to locs1 (to_img)
     bestH2to1, _ = computeH_ransac(locs1, locs2, opts)

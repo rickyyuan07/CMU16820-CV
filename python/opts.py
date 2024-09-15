@@ -28,6 +28,10 @@ def get_opts():
     # whether to show the warpped image
     parser.add_argument('--show_warpped_img', action='store_true', default=False,
                         help='whether to show the warpped image from HarryPotterize.py')
+    
+    # Select the best feature point representation
+    parser.add_argument('--match_method', type=str, choices=['BRIEF_FAST', 'SIFT', 'ORB'], default='BRIEF_FAST',
+                        help='the method to match features across images')
 
     ## Q2.2.5 RANSAC parameters ablation study
     parser.add_argument('--store_Q225_img', action='store_true', default=False,
