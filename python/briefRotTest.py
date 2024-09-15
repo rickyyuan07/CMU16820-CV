@@ -9,14 +9,14 @@ from tqdm import tqdm
 #Q2.1.6
 
 def rotTest(opts):
-
     # Read the image and convert to grayscale
     image = cv2.imread('../data/cv_cover.jpg')
     
     # Initialize histogram
+    rotations = np.arange(0, 360, 10)
     match_counts = np.zeros(36)
 
-    for angle in tqdm(range(0, 360, 10)):
+    for angle in tqdm(rotations):
         # Rotate Image, reshape=False because it's easier to match features(?)
         rotated_image = rotate(image, angle=angle, reshape=False)
 
@@ -28,9 +28,7 @@ def rotTest(opts):
         # histogram[i] = len(matches)
         match_counts[angle//10] = len(matches)
 
-
     # Display histogram
-    rotations = np.arange(0, 360, 10)
     plt.figure()
     plt.bar(rotations, match_counts, width=8)
     plt.xlabel('Rotation (degrees)')
