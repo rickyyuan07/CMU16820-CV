@@ -2,9 +2,8 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 from opts import get_opts
-
-#Import necessary functions
-
+from HarryPotterize import warpImage
+import os
 from helper import loadVid
 
 def crop_save_video(ar_src_vid_path: str, ar_img_path: str, ar_crop_vid_path: str) -> None:
@@ -54,5 +53,33 @@ if __name__ == "__main__":
     if opts.crop_video:
         crop_save_video(opts.ar_src_vid_path, opts.ar_img_path, opts.ar_crop_vid_path)
 
+    # Create the output directory if it does not exist
+    if not os.path.exists(opts.ar_out_dir):
+        os.makedirs(opts.ar_out_dir)
+
     # Load the cropped video
-    
+    cropped_video = loadVid(opts.ar_crop_vid_path)
+    print(f"Loaded cropped videos at {opts.ar_crop_vid_path}, shape: {cropped_video.shape}") # (511, 360, 286, 3)
+
+    # Load the target video
+    target_video = loadVid(opts.ar_tgt_vid_path)
+    print(f"Loaded target videos at {opts.ar_tgt_vid_path}, shape: {target_video.shape}") # (641, 480, 640, 3)
+
+    # Load the reference image
+    ref_image = cv2.imread(opts.ar_img_path)
+    print(f"Loaded reference image at {opts.ar_img_path}, shape: {ref_image.shape}") # (440, 350, 3)
+
+    # Generate warpped images and save each frames
+    result_frame = min(cropped_video.shape[0], target_video.shape[0])
+    for i in tqdm(range(result_frame)): # 511 frames
+        composite_img = warpImage(opts, ref_image, cropped_video[i], target_video[i])
+        cv2.imwrite(f"{opts.ar_out_dir}frame_{i}.png", composite_img)
+
+    # Reconstruct videos from saved frames
+    out = cv2.VideoWriter(f"{opts.ar_out_dir}{opts.ar_out_vid}", cv2.VideoWriter_fourcc(*'MJPG'), 30, (640, 480))
+    for i in tqdm(range(result_frame)):
+        img = cv2.imread(f"{opts.ar_out_dir}frame_{i}.png")
+        out.write(img)
+
+    out.release()
+    print(f"Video saved successfully at {opts.ar_out_dir}{opts.ar_out_vid}.")
