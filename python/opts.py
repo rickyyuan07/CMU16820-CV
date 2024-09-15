@@ -25,6 +25,15 @@ def get_opts():
                         help='the tolerance value for considering a point to be an inlier')
 
     ## Additional options (add your own hyperparameters here)
+    # whether to show the warpped image
+    parser.add_argument('--show_warpped_img', action='store_true', default=False,
+                        help='whether to show the warpped image from HarryPotterize.py')
+
+    ## Q2.2.5 RANSAC parameters ablation study
+    parser.add_argument('--store_Q225_img', action='store_true', default=False,
+                        help='whether to store img at ../Figures/composite_{opts.max_iters}_{opts.inlier_tol}.png')
+
+    ## Q3.1 AR
     parser.add_argument('--crop_video', action='store_true', default=False,
                         help='whether to generate cropped video')
     parser.add_argument('--ar_crop_vid_path', type=str, default='../data/cropped_ar_source.avi',
