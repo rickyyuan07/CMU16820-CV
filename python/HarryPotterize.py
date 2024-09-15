@@ -34,10 +34,10 @@ def warpImage(opts):
     bestH2to1, _ = computeH_ransac(locs1, locs2, opts)
     
     composite_img = compositeH(bestH2to1, hp_cover, cv_desk)
-    
+
     cv2.imshow("Composite Image", composite_img)
     cv2.waitKey()
-    cv2.imwrite("../Figures/composite.png", composite_img)
+    cv2.imwrite(f"../Figures/composite_{opts.max_iters}_{opts.inlier_tol}.png", composite_img)
 
 
 
