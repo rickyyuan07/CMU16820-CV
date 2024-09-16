@@ -3,3 +3,6 @@
 .DS_Store
 Figures/*
 result/*
+environment.yml
+requirements.txt
+data/*
