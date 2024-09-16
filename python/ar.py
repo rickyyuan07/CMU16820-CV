@@ -10,9 +10,8 @@ def crop_save_video(ar_src_vid_path: str, ar_img_path: str, ar_crop_vid_path: st
     '''
     Function to crop the video to the center of each frame.
     The cropped video's ratio will be the same as the reference image. (cv_cover.jpg)
-    The cropped video will be saved as '../data/cropped_ar_source.mov'.
     '''
-    input_video = loadVid(ar_src_vid_path) # shape: (num_frames, height, width, 3)
+    input_video = loadVid(ar_src_vid_path) # (num_frames, height, width, 3)
     vid_height, vid_width = input_video[0].shape[:2] # (360, 640)
     vid_ratio = vid_width / vid_height
 
@@ -42,7 +41,7 @@ def crop_save_video(ar_src_vid_path: str, ar_img_path: str, ar_crop_vid_path: st
     for frame in tqdm(cropped_video):
         out.write(frame)
 
-    print(f"Video saved successfully at {ar_crop_vid_path}.")
+    print(f"Video saved successfully to {ar_crop_vid_path}.")
     out.release()
 
 

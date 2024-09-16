@@ -104,9 +104,6 @@ def matchPicsSIFT(I1, I2, opts):
     kp1, des1 = sift.detectAndCompute(I1, None)
     kp2, des2 = sift.detectAndCompute(I2, None)
 
-    # create BFMatcher object (Brute Force Matcher with Hamming distance)
-    # Note: crossCheck=True means that the BFMatcher returns the best match in both images
-    # crossCheck=False to save computation time
     bf = cv2.BFMatcher()
     matches = bf.knnMatch(des1, des2, k=2)
 

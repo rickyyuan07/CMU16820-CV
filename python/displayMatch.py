@@ -11,7 +11,7 @@ def displayMatched(opts, image1, image2):
 
     Input
     -----
-    opts: Command line args
+    opts: Command line args, used to determine the method to match features
     image1, image2: Source images
     """
 
@@ -26,7 +26,7 @@ def displayMatched(opts, image1, image2):
         locs1 = locs1[:, ::-1]
         locs2 = locs2[:, ::-1]
 
-    #display matched features
+    # display matched features
     plotMatches(image1, image2, matches, locs1, locs2)
 
 if __name__ == "__main__":

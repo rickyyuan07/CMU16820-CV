@@ -9,7 +9,6 @@ from tqdm import tqdm
 #Q2.1.6
 
 def rotTest(opts):
-    # Read the image and convert to grayscale
     image = cv2.imread('../data/cv_cover.jpg')
     
     # Initialize histogram
