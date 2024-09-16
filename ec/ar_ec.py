@@ -99,6 +99,7 @@ if __name__ == "__main__":
     # Initialize variables for FPS calculation
     n_frames_sec = 0
     start_time = time.time()
+    FPS = []
 
     # Generate warpped images and use cv2.imshow to show each frames
     result_frame = min(source_video.shape[0], target_video.shape[0])
@@ -110,11 +111,12 @@ if __name__ == "__main__":
         fps = calculate_fps(start_time, n_frames_sec)
         # Reset FPS calculation every 1 second
         if time.time() - start_time > 1:
+            print(f"FPS: {fps:.2f}")
+            FPS.append(fps)
             n_frames_sec = 0
             start_time = time.time()
 
-        # Display FPS
-        cv2.putText(composite_img, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.imshow("AR Video", composite_img)
         cv2.waitKey(1)
 
+    print(f"Average FPS: {np.mean(FPS):.2f}")
