@@ -4,6 +4,7 @@ import skimage.color
 from helper import briefMatch
 from helper import computeBrief
 from helper import corner_detection
+import sys
 
 # Q2.1.4
 
@@ -57,7 +58,7 @@ def matchPicsORB(I1, I2, opts):
     matches: List of indices of matched features across I1, I2 [p x 2]
     locs1, locs2: Pixel coordinates of matches [N x 2]
     """
-    orb = cv2.ORB_create(nfeatures=5000)
+    orb = cv2.ORB_create(nfeatures=1000)
     kp1, des1 = orb.detectAndCompute(I1, None)
     kp2, des2 = orb.detectAndCompute(I2, None)
 
@@ -72,6 +73,10 @@ def matchPicsORB(I1, I2, opts):
     for m, n in matches:
         if m.distance < 0.7 * n.distance:
             good_matches.append(m)
+    
+    if len(good_matches) < 4:
+        print("Not enough matches found!", file=sys.stderr)
+        return None
 
     # Get the pixel coordinates of the matches
     locs1 = np.array([kp1[m.queryIdx].pt for m in good_matches])
@@ -110,6 +115,10 @@ def matchPicsSIFT(I1, I2, opts):
     for m, n in matches:
         if m.distance < 0.7 * n.distance:
             good_matches.append(m)
+    
+    if len(good_matches) < 4:
+        print("Not enough matches found!", file=sys.stderr)
+        return None
 
     # Get the pixel coordinates of the matches
     locs1 = np.array([kp1[m.queryIdx].pt for m in good_matches])

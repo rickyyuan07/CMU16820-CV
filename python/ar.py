@@ -8,7 +8,7 @@ from helper import loadVid
 
 def crop_save_video(ar_src_vid_path: str, ar_img_path: str, ar_crop_vid_path: str) -> None:
     '''
-    Function to crop the video to the center of each frame.add()
+    Function to crop the video to the center of each frame.
     The cropped video's ratio will be the same as the reference image. (cv_cover.jpg)
     The cropped video will be saved as '../data/cropped_ar_source.mov'.
     '''
