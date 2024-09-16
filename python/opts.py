@@ -53,6 +53,13 @@ def get_opts():
     parser.add_argument('--ar_out_vid', type=str, default='ar.avi',
                         help='output video name')
 
+    ## Q4 Panorama
+    parser.add_argument('--pano_left_img', type=str, default='../data/pano_left.jpg',
+                        help='path to the left image for creating panorama')
+    parser.add_argument('--pano_right_img', type=str, default='../data/pano_right.jpg',
+                        help='path to the right image for creating panorama')
+    parser.add_argument('--pano_out_img', type=str, default='../result/panorama.png',
+                        help='output panorama image name')
     ##
     opts = parser.parse_args()
 
