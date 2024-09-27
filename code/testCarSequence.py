@@ -51,6 +51,7 @@ for i in tqdm(range(seq.shape[2] - 1)):
         ax.add_patch(rect_patch)
         plt.axis('off')
         plt.savefig(f"../results/carseq_{i + 1}.png", bbox_inches='tight', pad_inches=0)
+        plt.close(fig)
 
 # (num_frames, 4)
 np.save("../results/carseqrects.npy", rects)
