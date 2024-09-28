@@ -18,7 +18,7 @@ def LucasKanade(It, It1, rect, threshold, num_iters, p0=np.zeros(2)):
     # set up the threshold
     ################### TODO Implement Lucas Kanade ###################
     # Initialize the warp parameters p
-    p = p0
+    p = p0.copy()
     x1, y1, x2, y2 = rect
 
     # Note: change to col-major order
