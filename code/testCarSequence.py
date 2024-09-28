@@ -36,22 +36,5 @@ for i in tqdm(range(seq.shape[2] - 1)):
 
     rects.append(rect.copy())
 
-    if not os.path.exists("../results"):
-        os.makedirs("../results")
-
-    # Display and save the image for frames 1, 100, 200, 300, 400
-    if i in [0, 99, 199, 299, 399]:
-        # Plot the rectangle and save the image
-        fig, ax = plt.subplots()
-        plt.imshow(It1, cmap='gray')
-        rect_patch = patches.Rectangle(
-            (rect[0], rect[1]), rect[2] - rect[0], rect[3] - rect[1],
-            linewidth=2, edgecolor='r', facecolor='none'
-        )
-        ax.add_patch(rect_patch)
-        plt.axis('off')
-        plt.savefig(f"../results/carseq_{i + 1}.png", bbox_inches='tight', pad_inches=0)
-        plt.close(fig)
-
 # (num_frames, 4)
-np.save("../results/carseqrects.npy", rects)
+np.save("carseqrects.npy", rects)
