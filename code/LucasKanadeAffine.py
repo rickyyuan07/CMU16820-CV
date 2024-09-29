@@ -23,13 +23,13 @@ def LucasKanadeAffine(It, It1, threshold, num_iters):
 
     for _ in range(num_iters):
         ### 1. Warp I with W(x;p) to compute I(W(x;p))
-        It1_warp = affine_transform(It1, M, mode='nearest')
+        It_warp = affine_transform(It, M, mode='nearest')
 
         ### 2. Compute the error image
-        error = It - It1_warp
+        error = It1 - It_warp
 
         ### 3. Warp the gradient of I with W(x;p) to compute \grad I
-        Ix, Iy = np.gradient(It1_warp)
+        Ix, Iy = np.gradient(It_warp)
 
         ### 4. Evaluate the Jacobian dW/dp, Note: we directly compute steepest descent images here
         # J = [[X,0,Y,0,1,0],[0,X,0,Y,0,1]]
