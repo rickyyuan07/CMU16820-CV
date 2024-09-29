@@ -1,6 +1,6 @@
 import numpy as np
-from scipy.ndimage.morphology import binary_erosion
-from scipy.ndimage.morphology import binary_dilation
+from scipy.ndimage import binary_erosion
+from scipy.ndimage import binary_dilation
 from scipy.ndimage import affine_transform
 from LucasKanadeAffine import LucasKanadeAffine
 from InverseCompositionAffine import InverseCompositionAffine
@@ -14,11 +14,22 @@ def SubtractDominantMotion(image1, image2, threshold, num_iters, tolerance):
     :param tolerance: binary threshold of intensity difference when computing the mask
     :return: mask: [nxm]
     """
-    
-    # put your implementation here
-    mask = np.ones(image1.shape, dtype=bool)
 
     ################### TODO Implement Substract Dominent Motion ###################
+    mask = np.ones(image1.shape, dtype=bool)
     
+    # Estimate dominant motion
+    M = LucasKanadeAffine(image1, image2, threshold, num_iters)
+    
+    # Warp image2 according to the estimated motion
+    warped_image2 = affine_transform(image2, M)
+    diff = np.abs(image1 - warped_image2)
+    
+    # True if considered as moving objects
+    mask = (diff > tolerance).astype(bool)
+    
+    # Opening operation to remove noise
+    mask = binary_erosion(mask, iterations=2, brute_force=True)
+    mask = binary_dilation(mask, iterations=2, brute_force=True)
 
     return mask.astype(bool)
