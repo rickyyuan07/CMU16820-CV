@@ -1,5 +1,5 @@
 import os
-andrew_id = None
+andrew_id = "rickyy"
 if andrew_id is None:
     print('enter your andrew id in the file first!')
     exit()
