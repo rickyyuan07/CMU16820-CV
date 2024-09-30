@@ -40,13 +40,10 @@ def InverseCompositionAffine(It, It1, threshold, num_iters):
         ### 2. Compute the error image
         error = It1_warp - It
 
-        ### 3. Warp the gradient of I with W(x;p) to compute \grad I
-        Ix, Iy = np.gradient(It1_warp)
-
-        ### 4. Computer delta p (dp) = H^{-1} @ A^T @ error
+        ### 3. Computer delta p (dp) = H^{-1} @ A^T @ error
         dp = H_inv @ A.T @ error.flatten()
         
-        ### 5. Update warp parameters W(x;p) = W(x;p) @ W(x;dp)
+        ### 4. Update warp parameters W(x;p) = W(x;p) @ W(x;dp)
         dM = np.array([[1.0 + dp[0], dp[2], dp[4]], [dp[1], 1.0 + dp[3], dp[5]], [0.0, 0.0, 1.0]])
         M = M @ np.linalg.inv(dM)
 
