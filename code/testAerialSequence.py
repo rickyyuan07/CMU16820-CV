@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from SubtractDominantMotion import SubtractDominantMotion
+from tqdm import tqdm
 
 # write your script here, we recommend all or some of the above libraries for making your animation
 
@@ -48,6 +49,7 @@ masks = np.zeros_like(seq, dtype=bool)
 frames_to_show = [30, 60, 90, 120]
 # Compute motion masks
 for i in frames_to_show:
+# for i in tqdm(range(1, seq.shape[2])):
     masks[:,:,i] = SubtractDominantMotion(seq[:,:,i-1], seq[:,:,i], threshold, num_iters, tolerance)
 
 # Visualize and save the results
@@ -68,7 +70,8 @@ for i, frame in enumerate(frames_to_show):
     ax.axis('off')
 
 plt.tight_layout()
-plt.savefig('./result/q2_3_aerial.png')
+# plt.savefig('./result/q2_3_aerial.png')
+plt.savefig('./result/q3_1_aerial.png')
 plt.show()
 
 # Print some statistics
