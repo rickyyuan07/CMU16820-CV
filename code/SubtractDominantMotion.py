@@ -19,7 +19,7 @@ def SubtractDominantMotion(image1, image2, threshold, num_iters, tolerance):
     mask = np.ones(image1.shape, dtype=bool)
     
     # Estimate dominant motion
-    M = LucasKanadeAffine(image2, image1, threshold, num_iters)
+    M = LucasKanadeAffine(image1, image2, threshold, num_iters)
     
     # Warp image2 according to the estimated motion
     warped_image2 = affine_transform(image2, M)
