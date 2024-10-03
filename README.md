@@ -2,7 +2,7 @@
 
 #### Instructions
 
-Follow `16_820_F23_HW3_release.pdf`.
+Follow `hw3.pdf`.
 
 Make sure to check the sections on `FAQ` and `Helpful Concepts` in the pdf.
 
