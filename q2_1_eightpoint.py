@@ -25,10 +25,21 @@ Q2.1: Eight Point Algorithm
 
 
 def eightpoint(pts1, pts2, M):
-    # Replace pass by your implementation
-    # ----- TODO -----
-    # YOUR CODE HERE
-    pass
+    T = np.array([[1 / M, 0, 0], [0, 1 / M, 0], [0, 0, 1]])
+    pts1, pts2 = pts1 / M, pts2 / M # Normalizing the points
+    x1, y1 = pts1[:, 0], pts1[:, 1]
+    x2, y2 = pts2[:, 0], pts2[:, 1]
+
+    A = np.array([x2 * x1, x2 * y1, x2, y2 * x1, y2 * y1, y2, x1, y1, np.ones_like(x1)]).T # (N, 9)
+
+    _, _, V = np.linalg.svd(A)
+    F = V[-1].reshape(3, 3)
+
+    F = _singularize(F) # Enforcing the singularity condition
+    F = refineF(F, pts1, pts2)
+
+    F = T.T @ F @ T # Unscaling the fundamental matrix
+    return F / F[2, 2]
 
 
 if __name__ == "__main__":
@@ -39,7 +50,8 @@ if __name__ == "__main__":
     im1 = plt.imread("data/im1.png")
     im2 = plt.imread("data/im2.png")
 
-    F = eightpoint(pts1, pts2, M=np.max([*im1.shape, *im2.shape]))
+    M = np.max([*im1.shape, *im2.shape]) # 640
+    F = eightpoint(pts1, pts2, M)
 
     # Q2.1
     displayEpipolarF(im1, im2, F)
@@ -51,3 +63,6 @@ if __name__ == "__main__":
     assert F[2, 2] == 1
     assert np.linalg.matrix_rank(F) == 2
     assert np.mean(calc_epi_error(pts1_homogenous, pts2_homogenous, F)) < 1
+
+    print(F)
+    np.savez("q2_1.npz", F, M)
