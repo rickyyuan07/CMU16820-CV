@@ -16,11 +16,8 @@ Q3.1: Compute the essential matrix E.
 
 
 def essentialMatrix(F, K1, K2):
-    # Replace pass by your implementation
-    # ----- TODO -----
-    # YOUR CODE HERE
-
-    pass
+    E = K2.T @ F @ K1
+    return E
 
 
 if __name__ == "__main__":
@@ -37,3 +34,4 @@ if __name__ == "__main__":
 
     # Simple Tests to verify your implementation:
     assert np.linalg.matrix_rank(E) == 2
+    print(E)
