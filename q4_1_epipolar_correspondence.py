@@ -6,6 +6,7 @@ from helper import _epipoles
 from q2_1_eightpoint import eightpoint
 
 # Insert your package here
+from scipy.ndimage import gaussian_filter
 
 
 # Helper functions for this assignment. DO NOT MODIFY!!!
@@ -87,12 +88,44 @@ Q4.1: 3D visualization of the temple images.
 """
 
 
-def epipolarCorrespondence(im1, im2, F, x1, y1):
-    # Replace pass by your implementation
-    # ----- TODO -----
-    # YOUR CODE HERE
-    raise NotImplementedError
-    pass
+def epipolarCorrespondence(im1, im2, F, x1: int, y1: int):
+    window_size = 20
+    # Assume two images only differ by a small amount, i.e. d(p1, p2) is small
+    search_range = 50
+    half_window = window_size // 2
+
+    # Template patch around the point (x1, y1) in im1
+    window1 = im1[y1 - half_window:y1 + half_window + 1, x1 - half_window:x1 + half_window + 1]
+    
+    # Gaussian filter helps us focus more on the center point
+    window1 = gaussian_filter(window1, sigma=1)
+
+    # Compute the epipolar line in im2 using fundamental matrix
+    epipolar_line = F @ np.array([x1, y1, 1]).T
+    epipolar_line = epipolar_line / np.linalg.norm(epipolar_line[:2])
+
+    height, width = im2.shape[:2]
+    min_y, max_y = max(0, y1 - search_range), min(height, y1 + search_range)
+
+    best_match = None
+    min_error = float('inf')
+    # Iterate along the epipolar line within the range to find the best match
+    for y2 in range(min_y, max_y):
+        # x * l[0] + y * l[1] + l[2] = 0 ==> x = -(l[1] * y + l[2]) / l[0]
+        x2 = int(-(epipolar_line[1] * y2 + epipolar_line[2]) / epipolar_line[0])
+        if x2 - half_window < 0 or x2 + half_window >= width or y2 - half_window < 0 or y2 + half_window >= height:
+            continue
+
+        window2 = im2[y2 - half_window:y2 + half_window + 1, x2 - half_window:x2 + half_window + 1]
+        # Same filter for the im2 window
+        window2 = gaussian_filter(window2, sigma=1)
+
+        error = np.sum((window1 - window2) ** 2)
+        if error < min_error:
+            min_error = error
+            best_match = (x2, y2)
+
+    return best_match
 
 
 if __name__ == "__main__":
