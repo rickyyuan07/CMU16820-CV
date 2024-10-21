@@ -28,12 +28,48 @@ Q3.2: Triangulate a set of 2D coordinates in the image to a set of 3D points.
 
 
 def triangulate(C1, pts1, C2, pts2):
-    # Replace pass by your implementation
-    # ----- TODO -----
-    # YOUR CODE HERE
+    x1, y1 = pts1[:, 0], pts1[:, 1]
+    x2, y2 = pts2[:, 0], pts2[:, 1]
+    N = x1.shape[0] # Number of points
 
-    raise NotImplementedError()
-    return P, err
+    # Construct skew-symmetric matrices for all points
+    skew_symmetric1 = np.array([
+        [np.zeros(N), -1.0 * np.ones(N), y1],
+        [np.ones(N), np.zeros(N), -1.0 * x1],
+        [-1.0 * y1, x1, np.zeros(N)]
+    ]).transpose(2, 0, 1) # Shape (N, 3, 3)
+
+    skew_symmetric2 = np.array([
+        [np.zeros(N), -1.0 * np.ones(N), y2],
+        [np.ones(N), np.zeros(N), -1.0 * x2],
+        [-1.0 * y2, x2, np.zeros(N)]
+    ]).transpose(2, 0, 1) # Shape (N, 3, 3)
+
+    # Only consider the first two rows because the third row is linearly dependent
+    eq1 = (skew_symmetric1 @ C1)[:, :2, :]  # Shape (N, 2, 4)
+    eq2 = (skew_symmetric2 @ C2)[:, :2, :]  # Shape (N, 2, 4)
+
+    A = np.concatenate([eq1, eq2], axis=1)  # Shape (N, 4, 4)
+
+    # Initialize the 3D points matrix (in homogeneous coordinates)
+    P = np.zeros((N, 4))
+    for i in range(N):
+        _, _, V = np.linalg.svd(A[i]) # V has shape (4, 4)
+        omega = V[-1]
+        P[i, :] = omega / omega[-1] # Normalize the homogeneous coordinates
+
+    # Project the 3D points back to 2D
+    proj1 = C1 @ P.T  # Shape (3, N)
+    proj2 = C2 @ P.T  # Shape (3, N)
+
+    # Normalize, back to non-homogeneous coordinates
+    proj1 = proj1[:2, :] / proj1[2, :]  # Shape (2, N)
+    proj2 = proj2[:2, :] / proj2[2, :]  # Shape (2, N)
+
+    # Compute the reprojection error
+    err = np.sum(np.linalg.norm(proj1.T - pts1, axis=1) + np.linalg.norm(proj2.T - pts2, axis=1))
+
+    return P[:, :3], err
 
 
 """
@@ -61,12 +97,32 @@ def findM2(F, pts1, pts2, intrinsics, filename="q3_3.npz"):
     (2) Remember to take a look at camera2 to see how to correctly reterive the M2 matrix from 'M2s'.
 
     """
-    # ----- TODO -----
-    # YOUR CODE HERE
+    K1, K2 = intrinsics["K1"], intrinsics["K2"]
+    E = essentialMatrix(F, K1, K2)
 
-    raise NotImplementedError()
+    # Get the 4 candidates of M2s
+    M2s = camera2(E)
 
-    return M2, C2, P
+    # C1 = K1 @ M1 = K1 @ [I|0]
+    M1 = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
+    C1 = K1 @ M1
+
+    best_M2, best_C2, best_P = None, None, None
+    for i in range(4):
+        # C2 = K2 @ M2 = K2 @ [R|t]
+        M2 = M2s[:,:,i]
+        C2 = K2 @ M2
+        P, _ = triangulate(C1, pts1, C2, pts2)
+
+        # Check if the 3D points are in front of the camera
+        if np.min(P[:, -1]) >= 0:
+            best_M2, best_C2, best_P = M2, C2, P
+            break
+
+    if filename is not None:
+        np.savez(filename, M2=best_M2, C2=best_C2, P=best_P)
+
+    return best_M2, best_C2, best_P
 
 
 if __name__ == "__main__":
