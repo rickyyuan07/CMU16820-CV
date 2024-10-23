@@ -119,7 +119,6 @@ def findM2(F, pts1, pts2, intrinsics, filename="q3_3.npz"):
         if np.sum(P[:, -1] > 0) > most_pos:
             best_M2, best_C2, best_P = M2, C2, P
             most_pos = np.sum(P[:, -1] > 0)
-            break
 
     if filename is not None:
         np.savez(filename, M2=best_M2, C2=best_C2, P=best_P)
