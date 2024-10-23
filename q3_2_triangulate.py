@@ -108,6 +108,7 @@ def findM2(F, pts1, pts2, intrinsics, filename="q3_3.npz"):
     C1 = K1 @ M1
 
     best_M2, best_C2, best_P = None, None, None
+    most_pos = 0
     for i in range(4):
         # C2 = K2 @ M2 = K2 @ [R|t]
         M2 = M2s[:,:,i]
@@ -115,8 +116,9 @@ def findM2(F, pts1, pts2, intrinsics, filename="q3_3.npz"):
         P, _ = triangulate(C1, pts1, C2, pts2)
 
         # Check if the 3D points are in front of the camera
-        if np.min(P[:, -1]) >= 0:
+        if np.sum(P[:, -1] > 0) > most_pos:
             best_M2, best_C2, best_P = M2, C2, P
+            most_pos = np.sum(P[:, -1] > 0)
             break
 
     if filename is not None:
@@ -142,4 +144,5 @@ if __name__ == "__main__":
     C1 = K1.dot(M1)
     C2 = K2.dot(M2)
     P_test, err = triangulate(C1, pts1, C2, pts2)
+    print(err)
     assert err < 500
