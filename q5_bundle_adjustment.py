@@ -9,7 +9,8 @@ from q3_2_triangulate import findM2
 import scipy
 
 # Insert your package here
-
+from scipy.optimize import minimize
+from tqdm import tqdm
 
 # Helper functions for this assignment. DO NOT MODIFY!!!
 """
@@ -153,8 +154,28 @@ Q5.3: Rodrigues residual.
 
 
 def rodriguesResidual(K1, M1, p1, K2, p2, x):
-    # TODO: Replace pass by your implementation
-    pass
+    N = p1.shape[0]
+    P = x[:3 * N].reshape(N, 3)  # 3D points, shape (N, 3)
+    r2 = x[3 * N:3 * N + 3]      # Rotation vector, shape (3,)
+    t2 = x[3 * N + 3:]           # Translation vector, shape (3,)
+
+    R2 = rodrigues(r2)
+    # M2 = [R2 | t2]
+    M2 = np.hstack((R2, t2.reshape(-1, 1)))
+
+    C1 = K1 @ M1 # Camera 1 projection matrix
+    C2 = K2 @ M2 # Camera 2 projection matrix
+
+    P_homo = np.hstack((P, np.ones((N, 1)))) # Convert 3D points to homogeneous coordinates, shape (N, 4)
+    p1_hat_homo = (C1 @ P_homo.T).T # 2D point projected to image 1, shape (N, 3)
+    p2_hat_homo = (C2 @ P_homo.T).T # 2D point projected to image 2, shape (N, 3)
+
+    p1_hat = p1_hat_homo[:, :2] / p1_hat_homo[:, 2:3] # shape (N, 2)
+    p2_hat = p2_hat_homo[:, :2] / p2_hat_homo[:, 2:3] # shape (N, 2)
+
+    # Compute residuals as the difference between original image projections and estimated projections
+    residuals = np.concatenate([(p1 - p1_hat).reshape(-1), (p2 - p2_hat).reshape(-1)])
+    return residuals
 
 
 """
@@ -178,11 +199,39 @@ Q5.3 Bundle adjustment.
 
 
 def bundleAdjustment(K1, M1, p1, K2, M2_init, p2, P_init):
-    obj_start = obj_end = 0
-    # ----- TODO -----
-    # YOUR CODE HERE
-    raise NotImplementedError()
-    return M2, P, obj_start, obj_end
+    N = p1.shape[0] # Number of points
+
+    # Extract the rotation and translation from the initial extrinsics of camera 2
+    R2_init = M2_init[:, :3]
+    t2_init = M2_init[:, 3]
+    # Convert initial rotation matrix to Rodrigues vector
+    r2_init = invRodrigues(R2_init)
+
+    # Concatenate 3D points, rotation vector, and translation for rodriguesResidual
+    x0 = np.concatenate([P_init.flatten(), r2_init, t2_init]) # (3N + 3 + 3,)
+
+    # Use sum of squared residuals as the objective function
+    def objective(x):
+        residuals = rodriguesResidual(K1, M1, p1, K2, p2, x)
+        return np.sum(residuals**2)
+
+    # Run optimization using Scipy's minimize, use default BFGS algorithm
+    result = minimize(objective, x0, method='BFGS', options={'maxiter': 1000, 'disp': False})
+
+    # Extract optimized parameters
+    x_opt = result.x
+    obj_start = objective(x0) # Initial objective function value
+    obj_end = result.fun      # Optimized objective function value
+
+    # Extract optimized 3D points, rotation vector, and translation
+    P_opt = x_opt[:3 * N].reshape(N, 3)
+    r2_opt = x_opt[3 * N:3 * N + 3]
+    t2_opt = x_opt[3 * N + 3:]
+
+    R2_opt = rodrigues(r2_opt) # Back to rotation matrix
+    M2 = np.hstack((R2_opt, t2_opt.reshape(-1, 1)))
+
+    return M2, P_opt, obj_start, obj_end
 
 
 if __name__ == "__main__":
@@ -238,3 +287,23 @@ if __name__ == "__main__":
     Call the bundleAdjustment function to optimize the extrinsics and 3D points
     Plot the 3D points before and after bundle adjustment using the plot_3D_dual function
     """
+
+    ## Compare the result of RANSAC with the result of the 8 point run on the noisy data
+    F, inliers = ransacF(pts1, pts2, M, nIters=200, tol=3)
+    error = np.sum(calc_epi_error(pts1_homogenous[inliers], pts2_homogenous[inliers], F))
+    print(f"Error for RANSAC: {error}")
+
+    F_vanilla = eightpoint(pts1, pts2, M)
+    error_vanilla = np.sum(calc_epi_error(pts1_homogenous[inliers], pts2_homogenous[inliers], F_vanilla))
+    print(f"Error for 8 point: {error_vanilla}")
+    print(f"Inliers: {np.sum(inliers) / len(inliers)}")
+
+    # Run findM2 based on RANSAC result and inliers
+    M1 = np.hstack((np.identity(3), np.zeros((3,1))))
+    M2, C2, P = findM2(F, pts1[inliers], pts2[inliers], intrinsics, None)
+
+    # Run bundle adjustment, compare the reprojection error before and after optimization
+    M2_ba, P_ba, obj_start, obj_end = bundleAdjustment(K1, M1, pts1[inliers], K2, M2, pts2[inliers], P)
+    print(f"Reprojection error before optimization: {obj_start :.6f}\nReprojection error after optimization: {obj_end :.6f}")
+
+    plot_3D_dual(P, P_ba)

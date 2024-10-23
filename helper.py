@@ -241,6 +241,7 @@ def refineF(F, pts1, pts2):
         F.reshape([-1]),
         maxiter=100000,
         maxfun=10000,
+        disp=False,
     )
     return _singularize(f.reshape([3, 3]))
 
