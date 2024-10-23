@@ -52,10 +52,29 @@ Q5.1: RANSAC method.
 
 
 def ransacF(pts1, pts2, M, nIters=1000, tol=10):
-    # TODO: Replace pass by your implementation
-    pass
+    MODE = "EIGHT" # Change to "SEVEN" for seven point algorithm
+    N = pts1.shape[0] # Number of points
 
+    pts1_homogenous, pts2_homogenous = toHomogenous(pts1), toHomogenous(pts2)
+    bestF = np.zeros((3, 3))
+    best_inliers = np.zeros(N, dtype=bool)
 
+    for _ in tqdm(range(nIters)):
+        if MODE == "EIGHT":
+            idx = np.random.choice(N, 8) # Should be replace=False, but somehow it doesn't work
+            F = eightpoint(pts1[idx], pts2[idx], M)
+        else: # use seven point algorithm
+            idx = np.random.choice(N, 7)
+            F = sevenpoint(pts1[idx], pts2[idx], M)
+        
+        inliers = calc_epi_error(pts1_homogenous, pts2_homogenous, F) < tol
+
+        if np.sum(inliers) > np.sum(best_inliers):
+            best_inliers = inliers
+            bestF = F
+
+    bestF = eightpoint(pts1[best_inliers], pts2[best_inliers], M)
+    return bestF, best_inliers
 """
 Q5.2: Rodrigues formula.
     Input:  r, a 3x1 vector
