@@ -82,9 +82,23 @@ Q5.2: Rodrigues formula.
 """
 
 
+# https://krasjet.github.io/quaternion/quaternion.pdf
+# https://courses.cs.duke.edu//fall13/compsci527/notes/rodrigues.pdf
 def rodrigues(r):
-    # TODO: Replace pass by your implementation
-    pass
+    theta = np.linalg.norm(r) # Rotation angle is the magnitude of r
+
+    if theta < 1e-10: # Close to zero
+        return np.identity(3)
+
+    u = r / theta
+    u_cross = np.array([
+        [0, -u[2], u[1]],
+        [u[2], 0, -u[0]],
+        [-u[1], u[0], 0]
+    ])
+
+    R = np.cos(theta) * np.identity(3) + (1 - np.cos(theta)) * np.outer(u, u) + np.sin(theta) * u_cross
+    return R
 
 
 """
@@ -95,9 +109,36 @@ Q5.2: Inverse Rodrigues formula.
 
 
 def invRodrigues(R):
-    # TODO: Replace pass by your implementation
-    pass
+    # Make sure R is a valid rotation matrix
+    assert np.allclose(R.T @ R, np.identity(3), atol=1e-6), "R is not a valid rotation matrix, R^T * R != I"
+    assert np.isclose(np.linalg.det(R), 1.0, atol=1e-6), "R is not a valid rotation matrix, det(R) != 1"
 
+    A = (R - R.T) / 2
+    rho = np.array([A[2, 1], A[0, 2], A[1, 0]]).T
+    s = np.linalg.norm(rho)
+    c = (np.trace(R) - 1) / 2
+
+    if np.isclose(s, 0) and np.isclose(c, 1):
+        return np.zeros(3)
+    if np.isclose(s, 0) and np.isclose(c, -1):
+        # Let v = a nonzero column of R + I
+        M = (R + np.eye(3)) / 2
+        for i in range(3):
+            if np.linalg.norm(M[:, i]) > 1e-10:
+                v = M[:, i]
+                break
+        
+        u = v / np.linalg.norm(v)
+        r = np.pi * u
+        # Construct S_{1/2}(u * pi)
+        if np.isclose(np.linalg.norm(r), np.pi) and ((r[0] == r[1] == 0 and r[2] < 0)
+            or (r[0] == 0 and r[1] < 0) or r[0] < 0):
+            r = -r
+    
+    u = rho / s
+    theta = np.arctan2(s, c)
+    r = theta * u
+    return r
 
 """
 Q5.3: Rodrigues residual.
