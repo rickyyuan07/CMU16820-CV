@@ -11,11 +11,9 @@ from util import *
 # we will do XW + b.
 # X be [Examples, Dimensions]
 def initialize_weights(in_size, out_size, params, name=""):
-    W, b = None, None
-
-    ##########################
-    ##### your code here #####
-    ##########################
+    init_range = np.sqrt(6 / (in_size + out_size))
+    W = np.random.uniform(-init_range, init_range, (in_size, out_size))
+    b = np.zeros(out_size)
 
     params["W" + name] = W
     params["b" + name] = b
