@@ -23,12 +23,7 @@ def initialize_weights(in_size, out_size, params, name=""):
 # x is a matrix
 # a sigmoid activation function
 def sigmoid(x):
-    res = None
-
-    ##########################
-    ##### your code here #####
-    ##########################
-
+    res = 1 / (1 + np.exp(-x))
     return res
 
 
