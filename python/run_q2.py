@@ -15,6 +15,12 @@ g3 = np.random.multivariate_normal([2.0, 10], [[0.5, 0], [0, 10]], 10)
 x = np.vstack([g0, g1, g2, g3])
 # we will do XW + B
 # that implies that the data is N x D
+import matplotlib.pyplot as plt
+# plt.scatter(g0[:, 0], g0[:, 1])
+# plt.scatter(g1[:, 0], g1[:, 1])
+# plt.scatter(g2[:, 0], g2[:, 1])
+# plt.scatter(g3[:, 0], g3[:, 1])
+# plt.show()
 
 # create labels
 y_idx = np.array(
@@ -38,29 +44,35 @@ assert params["Wlayer1"].shape == (2, 25)
 assert params["blayer1"].shape == (25,)
 
 # expect 0, [0.05 to 0.12]
+print("Expecting 0.0, [0.05 to 0.12]")
 print("{}, {:.2f}".format(params["blayer1"].mean(), params["Wlayer1"].std() ** 2))
 print("{}, {:.2f}".format(params["boutput"].mean(), params["Woutput"].std() ** 2))
+print("====================")
 
 # Q 2.2.1
 # implement sigmoid
 test = sigmoid(np.array([-1000, 1000]))
 print("should be zero and one\t", test.min(), test.max())
+print("====================")
 # implement forward
 h1 = forward(x, params, "layer1")
-print(h1.shape)
+print(h1.shape) # should be (40,25)
+print("====================")
 # Q 2.2.2
 # implement softmax
 probs = forward(h1, params, "output", softmax)
 # make sure you understand these values!
-# positive, ~1, ~1, (40,4)
+print("should be positive, ~1, ~1, (40,4)")
 print(probs.min(), min(probs.sum(1)), max(probs.sum(1)), probs.shape)
+print("====================")
 
 # Q 2.2.3
 # implement compute_loss_and_acc
 loss, acc = compute_loss_and_acc(y, probs)
-# should be around -np.log(0.25)*40 [~55], and 0.25
+print("should be around 0.55-0.7, and 0.25")
 # if it is not, check softmax!
 print("{}, {:.2f}".format(loss, acc))
+print("====================")
 
 # here we cheat for you
 # the derivative of cross-entropy(softmax(x)) is probs - 1[correct actions]
@@ -73,16 +85,18 @@ delta2 = backwards(delta1, params, "output", linear_deriv)
 # Implement backwards!
 backwards(delta2, params, "layer1", sigmoid_deriv)
 
-# W and b should match their gradients sizes
+print("W and b should match their gradients sizes")
 for k, v in sorted(list(params.items())):
     if "grad" in k:
         name = k.split("_")[1]
         print(name, v.shape, params[name].shape)
+print("====================")
 
 # Q 2.4
 batches = get_random_batches(x, y, 5)
 # print batch sizes
 print([_[0].shape[0] for _ in batches])
+print("====================")
 batch_num = len(batches)
 
 # WRITE A TRAINING LOOP HERE
@@ -123,6 +137,7 @@ for itr in range(max_iters):
             )
         )
 
+print("====================")
 
 # Q 2.5 should be implemented in this file
 # you can do this before or after training the network.
