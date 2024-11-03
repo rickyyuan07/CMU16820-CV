@@ -38,14 +38,12 @@ def forward(X, params, name="", activation=sigmoid):
     name -- name of the layer
     activation -- the activation function (default is sigmoid)
     """
-    pre_act, post_act = None, None
     # get the layer parameters
     W = params["W" + name]
     b = params["b" + name]
 
-    ##########################
-    ##### your code here #####
-    ##########################
+    pre_act = X @ W + b
+    post_act = activation(pre_act)
 
     # store the pre-activation and post-activation values
     # these will be important in backprop
