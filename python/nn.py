@@ -99,9 +99,10 @@ def backwards(delta, params, name="", activation_deriv=sigmoid_deriv):
     # do the derivative through activation first
     # (don't forget activation_deriv is a function of post_act)
     # then compute the derivative W, b, and X
-    ##########################
-    ##### your code here #####
-    ##########################
+    delta = delta * activation_deriv(post_act)
+    grad_W = X.T @ delta
+    grad_b = np.sum(delta, axis=0)
+    grad_X = delta @ W.T
 
     # store the gradients
     params["grad_W" + name] = grad_W
