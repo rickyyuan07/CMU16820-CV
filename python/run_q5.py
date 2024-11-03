@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import string
 
+np.random.seed(42)
 train_data = scipy.io.loadmat('../data/nist36_train.mat')
 valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
 
@@ -25,10 +26,16 @@ batch_num = len(batches)
 params = Counter()
 
 # Q5.1 & Q5.2
-# initialize layers here
-##########################
-##### your code here #####
-##########################
+# Initialize the layers for the autoencoder
+input_size = train_x.shape[1]  # 1024 for the NIST36 dataset
+initialize_weights(input_size, hidden_size, params, "layer1")
+initialize_weights(hidden_size, hidden_size, params, "layer2")
+initialize_weights(hidden_size, hidden_size, params, "layer3")
+initialize_weights(hidden_size, input_size, params, "output")
+# Initialize the momentum terms
+for k in ["layer1", "layer2", "layer3", "output"]:
+    params["m_W" + k] = np.zeros_like(params["W" + k])
+    params["m_b" + k] = np.zeros_like(params["b" + k])
 
 # should look like your previous training loops
 losses = []
@@ -44,18 +51,30 @@ for itr in range(max_iters):
         #   params is a Counter(), which returns a 0 if an element is missing
         #   so you should be able to write your loop without any special conditions
 
-        ##########################
-        ##### your code here #####
-        ##########################
-
         # forward pass
+        h1 = forward(xb, params, "layer1", relu)
+        h2 = forward(h1, params, "layer2", relu)
+        h3 = forward(h2, params, "layer3", relu)
+        reconstructed_x = forward(h3, params, "output", sigmoid)
 
         # loss
+        loss = np.sum((xb - reconstructed_x) ** 2) # total squared error
+        total_loss += loss
 
         # backward
+        delta = 2 * (reconstructed_x - xb)
+        delta = backwards(delta, params, "output", sigmoid_deriv)
+        delta = backwards(delta, params, "layer3", relu_deriv)
+        delta = backwards(delta, params, "layer2", relu_deriv)
+        backwards(delta, params, "layer1", relu_deriv)
 
         # apply gradient, remember to update momentum as well
-        
+        for k in params.keys(): # Copy key list to avoid adding new keys during iteration
+            if "grad" in k:
+                layer_name = k.split('_')[1]  # Layer name, e.g. Wlayer1
+                m_key = "m_" + layer_name  # Momentum key, e.g. m_Wlayer1
+                params[m_key] = 0.9 * params[m_key] - learning_rate * params[k]
+                params[layer_name] += params[m_key]
     
     losses.append(total_loss/train_x.shape[0])
     if itr % 2 == 0:
@@ -75,10 +94,10 @@ plt.show()
         
 # Q5.3.1
 # choose 5 labels (change if you want)
-visualize_labels = ["A", "B", "C", "1", "2"]
+visualize_labels = ["R", "I", "C", "K", "Y"]
 
 # get 2 validation images from each label to visualize
-visualize_x = np.zeros((2*len(visualize_labels), valid_x.shape[1]))
+visualize_x = np.zeros((2*len(visualize_labels), valid_x.shape[1])) # (10, 1024)
 for i, label in enumerate(visualize_labels):
     idx = 26+int(label) if label.isnumeric() else string.ascii_lowercase.index(label.lower())
     choices = np.random.choice(np.arange(100*idx, 100*(idx+1)), 2, replace=False)
@@ -86,11 +105,10 @@ for i, label in enumerate(visualize_labels):
 
 # run visualize_x through your network
 # name the output reconstructed_x
-##########################
-##### your code here #####
-##########################
-
-
+h1 = forward(visualize_x, params, "layer1", relu)
+h2 = forward(h1, params, "layer2", relu)
+h3 = forward(h2, params, "layer3", relu)
+reconstructed_x = forward(h3, params, "output", sigmoid)
 
 # visualize
 fig = plt.figure()
