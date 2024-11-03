@@ -155,9 +155,30 @@ for k, v in params.items():
     #   restore the original parameter value
     #   compute derivative with central diffs
 
-    ##########################
-    ##### your code here #####
-    ##########################
+    # Create an iterator to go through each element of the parameter
+    it = np.nditer(v, flags=['multi_index'], op_flags=['readwrite'])
+    while not it.finished:
+        idx = it.multi_index # Current index, 2D for W, 1D for b
+
+        # Compute f(x + eps)
+        v[idx] += eps
+        h1 = forward(x, params, "layer1")
+        probs = forward(h1, params, "output", softmax)
+        loss1, _ = compute_loss_and_acc(y, probs)
+
+        # Compute f(x - eps)
+        v[idx] -= 2 * eps
+        h1 = forward(x, params, "layer1")
+        probs = forward(h1, params, "output", softmax)
+        loss2, _ = compute_loss_and_acc(y, probs)
+
+        v[idx] += eps  # Restore original value
+
+        # Compute the numerical gradient
+        grad = (loss1 - loss2) / (2 * eps)
+        params["grad_" + k][idx] = grad
+
+        it.iternext()  # Move to the next element
 
 total_error = 0
 for k in params.keys():
