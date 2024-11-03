@@ -56,13 +56,9 @@ def forward(X, params, name="", activation=sigmoid):
 # x is [examples,classes]
 # softmax should be done for each row
 def softmax(x):
-    res = None
-
-    ##########################
-    ##### your code here #####
-    ##########################
-
-    return res
+    _x = x - np.max(x, axis=1, keepdims=True)
+    res = np.exp(_x) / np.sum(np.exp(_x), axis=1, keepdims=True)
+    return np.array(res)
 
 
 ############################## Q 2.2.3 ##############################
@@ -70,12 +66,8 @@ def softmax(x):
 # y is size [examples,classes]
 # probs is size [examples,classes]
 def compute_loss_and_acc(y, probs):
-    loss, acc = None, None
-
-    ##########################
-    ##### your code here #####
-    ##########################
-
+    loss = -np.sum(y * np.log(probs)) # prob = f(x), y is one-hot
+    acc = np.mean(np.argmax(y, axis=1) == np.argmax(probs, axis=1))
     return loss, acc
 
 
