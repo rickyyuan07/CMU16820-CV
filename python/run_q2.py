@@ -4,7 +4,7 @@ import numpy as np
 from nn import *
 from util import *
 
-
+np.random.seed(0)
 # fake data
 # feel free to plot it in 2D
 # what do you think these 4 classes are?
@@ -93,20 +93,29 @@ for itr in range(max_iters):
     total_loss = 0
     avg_acc = 0
     for xb, yb in batches:
-        ##########################
-        ##### your code here #####
-        ##########################
-        pass
         # forward
+        h1 = forward(xb, params, "layer1")
+        probs = forward(h1, params, "output", softmax)
 
         # loss
+        loss, acc = compute_loss_and_acc(yb, probs)
         # be sure to add loss and accuracy to epoch totals
+        total_loss += loss
+        avg_acc += acc
 
         # backward
+        delta1 = probs - yb
+        delta2 = backwards(delta1, params, "output", linear_deriv)
+        backwards(delta2, params, "layer1", sigmoid_deriv) # No need to store the final grad_X
 
         # apply gradient
         # gradients should be summed over batch samples
-
+        for k in params.keys():
+            if "grad" in k:
+                name = k.split("_")[1] # layer name
+                params[name] -= learning_rate * params[k]
+    
+    avg_acc /= batch_num
     if itr % 100 == 0:
         print(
             "itr: {:02d} \t loss: {:.2f} \t acc : {:.2f}".format(
