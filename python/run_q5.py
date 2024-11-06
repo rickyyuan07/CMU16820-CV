@@ -126,6 +126,15 @@ plt.show()
 # Q5.3.2
 from skimage.metrics import peak_signal_noise_ratio
 # evaluate PSNR
-##########################
-##### your code here #####
-##########################
+h1 = forward(valid_x, params, "layer1", relu)
+h2 = forward(h1, params, "layer2", relu)
+h3 = forward(h2, params, "layer3", relu)
+pred_valid_x = forward(h3, params, "output", sigmoid)
+
+psnr_values = []
+for original, reconstructed in zip(valid_x, pred_valid_x):
+    psnr = peak_signal_noise_ratio(original, reconstructed)
+    psnr_values.append(psnr)
+
+average_psnr = np.mean(psnr_values)
+print(f"Average PSNR: {average_psnr:.2f}")
