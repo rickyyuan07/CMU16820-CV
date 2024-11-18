@@ -50,8 +50,11 @@ def renderNDotLSphere(center, rad, light, pxSize, res):
     Y[np.real(Z) == 0] = 0
     Z = np.real(Z)
 
-    image = None
-    # Your code here
+    # Normals
+    N = np.stack((X, Y, Z), axis=-1)  # Shape: (2160, 3840, 3)
+    
+    # n-dot-l shading
+    image = np.maximum(0, np.sum(N * light, axis=-1))
     return image
 
 
@@ -227,6 +230,7 @@ if __name__ == "__main__":
     plt.figure()
     plt.imshow(image, cmap="gray")
     plt.imsave("1b-c.png", image, cmap="gray")
+    exit(0)
 
     # Part 1(c)
     I, L, s = loadData("../data/")
