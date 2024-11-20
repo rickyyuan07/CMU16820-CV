@@ -7,7 +7,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from skimage.color import rgb2xyz
-from utils import plotSurface
+from utils import plotSurface, integrateFrankot
 
 
 def renderNDotLSphere(center, rad, light, pxSize, res):
@@ -84,10 +84,19 @@ def loadData(path="../data/"):
 
     """
 
-    I = None
-    L = None
-    s = None
-    # Your code here
+    I = []
+    L = np.load(path + "sources.npy").T  # (3, 7)
+
+    for i in range(7):
+        img = plt.imread(f"{path}input_{i+1}.tif").astype(np.uint16)
+        img = rgb2xyz(img)
+        img = img[:, :, 1]  # 1 is the luminance channel
+        s = img.shape
+        img = img.flatten()
+        I.append(img)
+    
+    I = np.array(I)  # (7, P)
+    
     return I, L, s
 
 
@@ -112,8 +121,8 @@ def estimatePseudonormalsCalibrated(I, L):
         The 3 x P matrix of pesudonormals
     """
 
-    B = None
-    # Your code here
+    # Solve the linear system using least squares: argmin_B ||L^T B - I||^2
+    B = np.linalg.lstsq(L.T, I, rcond=None)[0]  # rcond=None uses default machine precision cutoff
     return B
 
 
@@ -137,9 +146,9 @@ def estimateAlbedosNormals(B):
         The 3 x P matrix of normals
     """
 
-    albedos = None
-    normals = None
-    # Your code here
+    # albedos are the magnitudes of the pseudonormals
+    albedos = np.linalg.norm(B, axis=0)  # (P,)
+    normals = B / (albedos + 1e-7)  # (3, P)
     return albedos, normals
 
 
@@ -173,9 +182,24 @@ def displayAlbedosNormals(albedos, normals, s):
 
     """
 
-    albedoIm = None
-    normalIm = None
-    # Your code here
+    albedoIm = albedos.reshape(s)  # (2160, 3840)
+    normals_rescaled = (normals + 1) / 2  # [-1, 1] -> [0, 1]
+    normalIm = normals_rescaled.T.reshape((s[0], s[1], 3))  # (2160, 3840, 3)
+
+    # # Display the images
+    # plt.figure(figsize=(10, 5))
+    
+    # plt.subplot(1, 2, 1)
+    # plt.imshow(albedoIm, cmap="gray")
+    # plt.title("Albedo Map")
+    # plt.axis("off")
+    
+    # plt.subplot(1, 2, 2)
+    # plt.imshow(normalIm, cmap="rainbow")
+    # plt.title("Normal Map")
+    # plt.axis("off")
+    
+    # plt.show()
     return albedoIm, normalIm
 
 
@@ -201,8 +225,11 @@ def estimateShape(normals, s):
 
     """
 
-    surface = None
-    # Your code here
+    normals = normals.T.reshape((s[0], s[1], 3))  # (2160, 3840, 3)
+    fx = -1.0 * normals[:, :, 0] / normals[:, :, 2]  # dz/dx
+    fy = -1.0 * normals[:, :, 1] / normals[:, :, 2]  # dz/dy
+    
+    surface = integrateFrankot(fx, fy)
     return surface
 
 
@@ -230,13 +257,15 @@ if __name__ == "__main__":
     plt.figure()
     plt.imshow(image, cmap="gray")
     plt.imsave("1b-c.png", image, cmap="gray")
-    exit(0)
 
     # Part 1(c)
     I, L, s = loadData("../data/")
 
     # Part 1(d)
-    # Your code here
+    U, S, V = np.linalg.svd(I, full_matrices=False)
+    print("Singular values:", S)
+    rank = np.sum(S > 1e-5)
+    print(f"Estimated rank of I: {rank}")
 
     # Part 1(e)
     B = estimatePseudonormalsCalibrated(I, L)
