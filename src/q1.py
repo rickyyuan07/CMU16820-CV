@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from skimage.color import rgb2xyz
 from utils import plotSurface, integrateFrankot
+import cv2
 
 
 def renderNDotLSphere(center, rad, light, pxSize, res):
@@ -88,7 +89,7 @@ def loadData(path="../data/"):
     L = np.load(path + "sources.npy").T  # (3, 7)
 
     for i in range(7):
-        img = plt.imread(f"{path}input_{i+1}.tif").astype(np.uint16)
+        img = plt.imread(f"{path}input_{i+1}.tif", cv2.IMREAD_UNCHANGED)
         img = rgb2xyz(img)
         img = img[:, :, 1]  # 1 is the luminance channel
         s = img.shape

@@ -37,10 +37,11 @@ def estimatePseudonormalsUncalibrated(I):
 
     """
 
-    B = None
-    L = None
-    # Your code here
-    return B, L
+    # (7, P) -> (7, 7), (7,), (7, P)
+    U, S, V = np.linalg.svd(I, full_matrices=False)
+    B = V[:3, :]  # (3, P)
+    L = U[:, :3]  # (7, 3)
+    return B, L.T
 
 
 def plotBasRelief(B, mu, nu, lam):
@@ -68,20 +69,49 @@ def plotBasRelief(B, mu, nu, lam):
         None
 
     """
+    G = np.array([[1, 0, 0], [0, 1, 0], [mu, nu, lam]])
+    B = enforceIntegrability(B, s)
+    B = np.linalg.inv(G.T) @ B
+    albedos, normals = estimateAlbedosNormals(B)
+    surface = estimateShape(normals, s)
+    plotSurface(surface)
 
-    # Your code here
-    pass
 
-    if __name__ == "__main__":
-        pass
-        # Part 2 (b)
-        # Your code here
+if __name__ == "__main__":
+    I, L0, s = loadData()
+    B0, L = estimatePseudonormalsUncalibrated(I)
 
-        # Part 2 (d)
-        # Your code here
+    # Part 2 (b)
+    albedos, normals = estimateAlbedosNormals(B0)
+    albedoIm, normalIm = displayAlbedosNormals(albedos, normals, s)
+    plt.imsave("2b-a.png", albedoIm, cmap="gray")
+    plt.imsave("2b-b.png", normalIm, cmap="rainbow")
 
-        # Part 2 (e)
-        # Your code here
+    # Part 2 (c)
+    print(L)
+    print(L0)
 
-        # Part 2 (f)
-        # Your code here
+    # Part 2 (d)
+    surface = estimateShape(normals, s)
+    plotSurface(surface)
+
+    # Part 2 (e)
+    # GBR (generalized bas-relief) transform matrix
+    # G = np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])
+    plotBasRelief(B0, 0, 0, -1)
+
+    # Part 2 (f)
+    # Compare different mu
+    plotBasRelief(B0, 3, 0, -1)
+    plotBasRelief(B0, -3, 0, -1)
+    plotBasRelief(B0, 10, 0, -1)
+
+    # Compare different nu
+    plotBasRelief(B0, 0, 3, -1)
+    plotBasRelief(B0, 0, -3, -1)
+    plotBasRelief(B0, 0, 10, -1)
+
+    # Compare different lambda
+    plotBasRelief(B0, 0, 0, -1)
+    plotBasRelief(B0, 0, 0, -10)
+    plotBasRelief(B0, 0, 0, -50)
