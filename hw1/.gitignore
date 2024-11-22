@@ -1,0 +1,8 @@
+*/__pycache__/*
+*/.vscode/*
+.DS_Store
+Figures/*
+result/*
+environment.yml
+requirements.txt
+data/*

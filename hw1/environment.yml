@@ -1,0 +1,42 @@
+name: cv
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - ca-certificates=2023.05.30
+  - libffi=3.4.4
+  - ncurses=6.4
+  - openssl=3.0.10
+  - pip=23.2.1
+  - python=3.8.17
+  - readline=8.2
+  - setuptools=68.0.0
+  - sqlite=3.41.2
+  - tk=8.6.12
+  - wheel=0.38.4
+  - xz=5.4.2
+  - zlib=1.2.13
+  - pip:
+      - contourpy==1.1.0
+      - cycler==0.11.0
+      - fonttools==4.42.1
+      - imageio==2.31.2
+      - importlib-resources==6.0.1
+      - kiwisolver==1.4.5
+      - lazy-loader==0.3
+      - matplotlib==3.7.2
+      - networkx==3.1
+      - numpy==1.21.2
+      - opencv-contrib-python==4.8.0.76
+      - opencv-python==4.8.0.76
+      - packaging==23.1
+      - pillow==10.0.0
+      - pyparsing==3.0.9
+      - python-dateutil==2.8.2
+      - pywavelets==1.4.1
+      - scikit-image==0.21.0
+      - scipy==1.10.1
+      - six==1.16.0
+      - tifffile==2023.7.10
+      - zipp==3.16.2
+prefix: /opt/anaconda3/envs/cv
