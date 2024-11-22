@@ -1,0 +1,6 @@
+**/__pycache__/**
+**/data/**
+images/**
+*.pickle
+*.vim
+.DS_Store
