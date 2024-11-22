@@ -1,0 +1,38 @@
+save_dir: result
+
+q1.3:
+  car:
+    test: 'testCarSequence.py'
+    seq_path: ../data/carseq.npy
+    rect_path: carseqrects.npy
+    save_prefix: 'result/q1_3_car_'
+    first_rect: [59, 116, 145, 151]
+    plot_frames: [0, 99, 199, 299, 399]
+
+  girl:
+    test: 'testGirlSequence.py'
+    seq_path: ../data/girlseq.npy
+    rect_path: girlseqrects.npy
+    save_prefix: 'result/q1_3_girl_'
+    first_rect: [280, 152, 330, 318]
+    plot_frames: [0, 19, 39, 59, 79]
+
+q1.4:
+  car:
+    test: 'testCarSequenceWithTemplateCorrection.py'
+    seq_path: ../data/carseq.npy
+    rect_path: carseqrects-wcrt.npy
+    rect_path_prev: carseqrects.npy
+    save_prefix: 'result/q1_4_car_'
+    first_rect: [59, 116, 145, 151]
+    plot_frames: [0, 99, 199, 299, 399]
+
+  girl:
+    test: 'testGirlSequenceWithTemplateCorrection.py'
+    seq_path: ../data/girlseq.npy
+    rect_path: girlseqrects-wcrt.npy
+    rect_path_prev: girlseqrects.npy
+    save_prefix: 'result/q1_4_girl_'
+    first_rect: [280, 152, 330, 318]
+    plot_frames: [0, 19, 39, 59, 79]
+
